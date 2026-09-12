@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null; }
+    function isOwner() { return isSignedIn() && request.auth.token.email == "mslmalmyaly223@gmail.com"; }
+    function isMe(uid) { return isSignedIn() && request.auth.uid == uid; }
+
+    // Users: a person can read/create/update only their own profile.
+    // Sensitive fields (role, donatedTotal) are only ever changed by the
+    // owner (donatedTotal is updated as part of the donation-approval step).
+    match /users/{uid} {
+      allow read: if isMe(uid) || isOwner();
+      allow create: if isMe(uid);
+      allow update: if isMe(uid) || isOwner();
+
+      match /notifications/{notifId} {
+        allow read, update: if isMe(uid) || isOwner();
+        allow create: if isOwner() || isMe(uid);
+      }
+    }
+
+    // Campaigns: everyone signed in can read; only the owner can write.
+    match /campaigns/{campaignId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner();
+    }
+
+    // Payment methods: everyone signed in can read; only the owner can write.
+    match /paymentMethods/{pmId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner();
+    }
+
+    // Donations: a user can create their own donation (always starts pending)
+    // and read their own donations. Only the owner can read all of them,
+    // and only the owner can change status (approve/reject).
+    match /donations/{donationId} {
+      allow create: if isSignedIn()
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.status == "pending";
+      allow read: if isSignedIn() && (resource.data.uid == request.auth.uid || isOwner());
+      allow update: if isOwner();
+      allow delete: if isOwner();
+    }
+  }
+}

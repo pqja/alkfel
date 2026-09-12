@@ -44,7 +44,7 @@
       --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
     }
 
-    /* شرط منع التحديد والنسخ نهائياً */
+    /* شرط منع التحديد والنسخ نهائياً في كل التطبيق */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -398,6 +398,7 @@
       stroke-width: 2.2;
     }
 
+    /* الشارات الحمراء الفورية */
     .badge-dot {
       position: absolute;
       top: 10px;
@@ -973,10 +974,10 @@
     .modal-card {
       background: var(--card-bg);
       padding: 24px;
-      border-radius: 20px;
+      border-radius: 18px;
       text-align: center;
       width: 100%;
-      max-width: 330px;
+      max-width: 320px;
       box-shadow: var(--shadow-lg);
     }
 
@@ -1263,8 +1264,8 @@
           <span>تبرعاتي</span>
         </div>
 
-        <!-- زر تبرع بدون أموال (شغال عبر الإعلانات) -->
-        <div class="action-card-btn" onclick="App.openNoMoneyPopup()">
+        <!-- زر تبرع بدون أموال (مفعل الآن برابط المشاهدة) -->
+        <div class="action-card-btn" onclick="App.watchAdForDonation()">
           <div class="action-icon-wrap">
             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
           </div>
@@ -1747,49 +1748,16 @@
     </div>
   </div>
 
-  <!-- ==================== النافذة التفاعلية: تبرع بدون أموال (الإعلانات) ==================== -->
-  <div id="no-money-modal" class="modal-backdrop">
-    <div class="modal-card">
-      <div style="font-size: 38px; margin-bottom: 8px;">🎁</div>
-      <h3 style="font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 6px;">تبرع بدون أموال</h3>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
-        يمكنك دعم الحملات الإنسانية مجاناً من خلال مشاهدة الإعلانات، حيث يعود ريعها المالي بالكامل لخدمة المحتاجين.
-      </p>
-
-      <!-- عداد المشاهدات اليومية وشريط التقدم -->
-      <div style="background: var(--icon-box-bg); border-radius: 14px; padding: 12px; margin-bottom: 16px;">
-        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">
-          <span>المحاولات اليومية:</span>
-          <span id="ad-counter-text" style="color: var(--primary);">0 / 10</span>
-        </div>
-        <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 8px; overflow: hidden;">
-          <div id="ad-progress-fill" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.3s ease;"></div>
-        </div>
-      </div>
-
-      <button id="watch-ad-btn" class="btn-main btn-primary" style="height: 48px; margin-bottom: 8px;" onclick="App.handleWatchAdClick()">
-        <span>مشاهدة إعلان والتبرع 🎬</span>
-      </button>
-      
-      <button class="btn-main" style="height: 42px; background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); margin: 0;" onclick="App.closeNoMoneyPopup()">
-        إغلاق
-      </button>
-    </div>
-  </div>
-
   <!-- إشعار عائم -->
   <div id="toast-msg"></div>
 
 </div>
 
 <!-- =======================================================
-     8. محرك التطبيق السريع والمتزامن حياً مع دعم الإعلانات
+     8. محرك التطبيق السريع والمتزامن حياً مع الحذف بعد 15 دقيقة
      ======================================================= -->
 <script>
   const OWNER_EMAIL = "mslmalmyaly223@gmail.com";
-
-  // الرابط معكوس لمنع الحظر
-  const REVERSED_AD_LINK = "fb9b9e41ba1e4c2b3ca819feffdb77b5=yek?uwfnya2cw/moc.krowtenmpcetarelbatiforp.www//:sptth";
 
   const App = {
     currentUser: null,
@@ -1807,7 +1775,7 @@
     cleanupIntervalId: null,
 
     init() {
-      // 1. استرجاع وعرض الكاش فوراً
+      // 1. استرجاع وعرض الكاش فوراً (سرعة 0 ملي ثانية)
       App.loadInstantLocalCache();
 
       // 2. تطبيق الثيم واللغة
@@ -2053,7 +2021,7 @@
     setupLiveListeners(user) {
       App.cleanUpLiveListeners();
 
-      // 1. مراقبة المالك الحية: إشعال النقطة الحمراء فوراً
+      // 1. مراقبة المالك الحية: إشعال النقطة الحمراء فوراً بلحظتها
       const isOwner = (user.email && user.email.toLowerCase().trim() === OWNER_EMAIL.toLowerCase().trim());
       if (isOwner) {
         const qPending = window.fbQuery(
@@ -2077,7 +2045,7 @@
         });
       }
 
-      // 2. مراقبة إشعارات المتبرع الحية (حذف بعد 15 دقيقة فقط من القراءة)
+      // 2. مراقبة إشعارات المتبرع الحية مع فلترة الإشعارات المنتهية (15 دقيقة بعد القراءة)
       const qUserNotifs = window.fbQuery(
         window.fbCollection(window.fbDb, "notifications"),
         window.fbWhere("userId", "==", user.uid)
@@ -2091,6 +2059,7 @@
         snapshot.forEach(docSnap => {
           const item = { id: docSnap.id, ...docSnap.data() };
           
+          // إذا تمت قراءته ومرّت 15 دقيقة كاملة، يتم حذفه من قاعدة البيانات فوراً
           if (item.read && item.readAt && (now - item.readAt >= FIFTEEN_MINUTES)) {
             try {
               window.fbDeleteDoc(window.fbDoc(window.fbDb, "notifications", item.id));
@@ -2125,8 +2094,12 @@
       }
     },
 
+    // =======================================================
+    // روتين الحذف التلقائي بعد 15 دقيقة من القراءة (Auto Cleanup)
+    // =======================================================
     startAutoCleanupRoutine() {
       App.stopAutoCleanupRoutine();
+      // تشغيل فحص دوري كل دقيقة للتأكد من حذف الإشعارات المقروءة بعد 15 دقيقة
       App.cleanupIntervalId = setInterval(() => {
         App.purgeExpiredNotifications();
       }, 60 * 1000);
@@ -2167,78 +2140,6 @@
           App.renderNotificationsList();
         }
       }
-    },
-
-    // =======================================================
-    // نظام الإعلانات والتبرع بدون أموال (Adsterra)
-    // =======================================================
-    getDailyAdData() {
-      const today = new Date().toISOString().slice(0, 10);
-      const uid = App.currentUser ? App.currentUser.uid : 'guest';
-      const key = `alkfel_ad_${uid}_${today}`;
-      const count = Number(localStorage.getItem(key) || 0);
-      return { today, key, count };
-    },
-
-    openNoMoneyPopup() {
-      App.updateAdModalUI();
-      document.getElementById('no-money-modal').classList.add('show-modal');
-    },
-
-    closeNoMoneyPopup() {
-      document.getElementById('no-money-modal').classList.remove('show-modal');
-    },
-
-    updateAdModalUI() {
-      const { count } = App.getDailyAdData();
-      const textEl = document.getElementById('ad-counter-text');
-      const fillEl = document.getElementById('ad-progress-fill');
-      const btnEl = document.getElementById('watch-ad-btn');
-
-      if (textEl) textEl.innerText = `${count} / 10`;
-      if (fillEl) fillEl.style.width = `${Math.min(100, (count / 10) * 100)}%`;
-
-      if (btnEl) {
-        if (count >= 10) {
-          btnEl.disabled = true;
-          btnEl.innerText = "استنفدت المحاولات اليومية (10/10)";
-          btnEl.style.background = "#94a3b8";
-        } else {
-          btnEl.disabled = false;
-          btnEl.innerText = "مشاهدة إعلان والتبرع 🎬";
-          btnEl.style.background = "var(--card-gradient)";
-        }
-      }
-    },
-
-    handleWatchAdClick() {
-      const { key, count } = App.getDailyAdData();
-
-      if (count >= 10) {
-        App.toast("لقد استخدمت الـ 10 محاولات اليومية للاعلانات");
-        return;
-      }
-
-      // فك عكس الرابط بأمان بالذاكرة
-      const decodedUrl = REVERSED_AD_LINK.split('').reverse().join('');
-      
-      // فتح الإعلان في تبويب خارجي
-      window.open(decodedUrl, '_blank');
-
-      // زيادة العداد وحفظه
-      const newCount = count + 1;
-      localStorage.setItem(key, newCount.toString());
-      App.updateAdModalUI();
-
-      // رسالة الشكر الشرعية المطلوبة
-      setTimeout(() => {
-        App.toast("جزاك الله خيرا بميزان حسناتك 🤲🤍");
-        if (newCount >= 10) {
-          setTimeout(() => {
-            App.toast("لقد استخدمت الـ 10 محاولات اليومية للاعلانات");
-          }, 2500);
-        }
-      }, 500);
     },
 
     // المصادقة
@@ -2348,6 +2249,59 @@
       document.getElementById('donate-amount-input').value = '';
       App.renderPaymentSelectionList();
       App.navigateTo('donate-step1-screen');
+    },
+
+    // =======================================================
+    // دالة مشاهدة الإعلان - تبرع بدون أموال
+    // =======================================================
+    watchAdForDonation() {
+      const uid = App.currentUser ? App.currentUser.uid : 'guest';
+      const today = new Date().toISOString().split('T')[0];
+      const cacheKey = `ad_views_${uid}_${today}`;
+      let views = parseInt(localStorage.getItem(cacheKey) || '0');
+
+      if (views >= 10) {
+        App.toast("لقد استخدمت ال10 محاولات اليومية للاعلانات");
+        return;
+      }
+
+      const adLink = "https://www.profitableratecpmnetwork.com/wc2aynfwu?key=5b77bddfe45918ac3b2c4e1ab14e9bbf";
+      
+      // فتح النافذة للإعلان وحفظ وقت الفتح
+      let startTime = Date.now();
+      const adWindow = window.open(adLink, '_blank');
+      
+      if (!adWindow) {
+        App.toast("يرجى السماح بالنوافذ المنبثقة (Pop-ups) لعرض الإعلان 🛑");
+        return;
+      }
+
+      App.toast("جاري عرض الإعلان... يرجى البقاء في صفحة الإعلان قليلاً");
+
+      // دالة ذكية للتحقق إذا المستخدم بقى بالإعلان ورجع
+      const checkFocus = () => {
+        if (document.visibilityState === 'visible') {
+          let elapsed = Date.now() - startTime;
+          // إزالة المستمع حتى لا يتكرر
+          document.removeEventListener('visibilitychange', checkFocus);
+          
+          // يجب أن يقضي 8 ثواني على الأقل بالإعلان حتى نحسبه
+          if (elapsed >= 8000) { 
+            let currentViews = parseInt(localStorage.getItem(cacheKey) || '0');
+            if (currentViews < 10) {
+              localStorage.setItem(cacheKey, currentViews + 1);
+              App.toast("جزاك الله خيرا بميزان حسناتك ✨");
+            } else {
+              App.toast("لقد استخدمت ال10 محاولات اليومية للاعلانات");
+            }
+          } else {
+            App.toast("لم تقم بمشاهدة الإعلان لوقت كافي ❌");
+          }
+        }
+      };
+      
+      // إضافة مراقب لعودة المستخدم للتطبيق
+      document.addEventListener('visibilitychange', checkFocus);
     },
 
     renderPaymentSelectionList() {
@@ -2460,18 +2414,23 @@
       App.navigateTo('main-app', true);
     },
 
+    // =======================================================
+    // فتح الإشعارات + تفعيل عداد الـ 15 دقيقة للحذف التلقائي
+    // =======================================================
     async openNotifications() {
       const bellBadge = document.getElementById('home-bell-badge');
       if (bellBadge) bellBadge.style.display = 'none';
 
+      // تنظيف أي إشعار انتهت مدته (15 دقيقة)
       await App.purgeExpiredNotifications();
 
+      // بمجرد الدخول، نسجل وقت المشاهدة والقراءة (readAt = now)
       const now = Date.now();
       if (App.currentUser) {
         App.cachedNotifications.forEach(async (n) => {
           if (!n.read) {
             n.read = true;
-            n.readAt = now;
+            n.readAt = now; // تسجيل بداية عداد الـ 15 دقيقة
             if (n.id) {
               try {
                 await window.fbUpdateDoc(window.fbDoc(window.fbDb, "notifications", n.id), { 
@@ -2743,12 +2702,13 @@
       }
     },
 
-    // قبول التبرع
+    // قبول التبرع: رفع الرصيد وإرسال إشعار القبول
     async approveDonation(docId, amount, type, campaignId, userId) {
       try {
         App.showLoader();
         await window.fbUpdateDoc(window.fbDoc(window.fbDb, "donations", docId), { status: 'approved' });
         
+        // 1. زيادة رصيد الحملة
         if (type !== 'صدقة' && campaignId) {
           const camp = App.cachedCampaigns.find(c => c.id === campaignId);
           if (camp) {
@@ -2759,6 +2719,7 @@
           }
         }
 
+        // 2. زيادة رصيد المتبرع الفعلي
         if (userId && userId !== 'guest') {
           try {
             const uRef = window.fbDoc(window.fbDb, "users", userId);
@@ -2779,6 +2740,7 @@
             }
           } catch(err) {}
 
+          // 3. إشعار القبول الرسمي المفصل في فايربيس
           await window.fbAddDoc(window.fbCollection(window.fbDb, "notifications"), {
             userId: userId,
             status: 'approved',
@@ -2802,7 +2764,7 @@
       }
     },
 
-    // رفض التبرع
+    // رفض التبرع: إرسال إشعار الرفض
     async rejectDonation(docId, amount, type, userId) {
       try {
         App.showLoader();
@@ -2975,7 +2937,7 @@
   observer.observe(document.getElementById('app-viewport'), { attributes: true, subtree: true });
 
   document.addEventListener('DOMContentLoaded', () => App.init());
+  
 </script>
-
 </body>
 </html>
